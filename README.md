@@ -5,3 +5,4 @@
 # Error
 
 - Missed Alphabet 저장
+- 배포 에러
