@@ -98,7 +98,6 @@ function App() {
     const checkedWord = word.split("").map((a, i) => {
       if (a.toUpperCase() === clickedAlphabet) {
         // 클릭한 단어가 맞을 경우
-        clickedAlphabet = null;
         return a;
       } else {
         // 클릭한 단어가 다를 경우
@@ -107,6 +106,14 @@ function App() {
           : forbiddenWord[i];
       }
     });
+
+    if (
+      checkedWord
+        .join("")
+        .toUpperCase()
+        .indexOf(clickedAlphabet) > -1
+    )
+      clickedAlphabet = null;
 
     setForbiddenWord(checkedWord);
 
