@@ -1,6 +1,6 @@
 # Tech Stack
 
-- React + TypeScript + Vite + Emotion
+- React + TypeScript + Vite + Emotion + Zustand
 
 # Feature
 

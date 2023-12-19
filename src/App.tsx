@@ -1,17 +1,17 @@
-import styled from "@emotion/styled";
-import { upper } from "./assets/alphabet";
-import { SyntheticEvent, useEffect, useState } from "react";
-import { generate } from "random-words";
+import styled from '@emotion/styled';
+import { SyntheticEvent, useEffect, useState } from 'react';
+import { generate } from 'random-words';
+import AlphabetComponents from './components/Alphabet';
+import { useWordStore } from './zustand/word';
 
 function App() {
-  const [word, setWord] = useState("");
-  const [words, setWords] = useState<string[]>([]);
-  const [forbiddenWord, setForbiddenWord] = useState<
-    string[]
-  >([]);
-  const [missedAlphabets, setMissedAlphabets] = useState<
-    string[]
-  >([]);
+  const [words, setWords] = useState<string[]>([]); // 초기에 선택할 수 있는 단어들
+  const word = useWordStore((state) => state.word);
+  const forbiddenWord = useWordStore((state) => state.forbiddenWord);
+  const missedAlphabets = useWordStore((state) => state.missedAlphabets);
+  const updateWord = useWordStore((state) => state.updateWord);
+  const updateForbiddenWord = useWordStore((state) => state.updateForbiddenWord);
+  const resetWordStore = useWordStore((state) => state.resetWordStore);
 
   const [gallow, setGallow] = useState(false);
   const [rod, setRod] = useState(false);
@@ -48,7 +48,7 @@ function App() {
       case 8:
         setFoot(true);
         setTimeout(() => {
-          alert("실패!");
+          alert('실패!');
           window.location.reload();
         }, 500);
 
@@ -58,9 +58,8 @@ function App() {
   }, [missedAlphabets]);
 
   const resetGame = () => {
-    setWords(() => []);
-    setWord("");
-    setMissedAlphabets([]);
+    resetWordStore();
+    setWords([]);
     setGallow(false);
     setRod(false);
     setHead(false);
@@ -82,197 +81,61 @@ function App() {
   };
 
   const selectWord = (e: SyntheticEvent) => {
-    setForbiddenWord(
-      (e.target as HTMLButtonElement).innerText
-        .split("")
-        .map(() => " _ ")
-    );
-    setWord((e.target as HTMLButtonElement).innerText);
-  };
-
-  const checkAlphabet = (e: SyntheticEvent) => {
-    let clickedAlphabet: string | null = (
-      e.target as HTMLButtonElement
-    ).innerText;
-
-    const checkedWord = word.split("").map((a, i) => {
-      if (a.toUpperCase() === clickedAlphabet) {
-        // 클릭한 단어가 맞을 경우
-        return a;
-      } else {
-        // 클릭한 단어가 다를 경우
-        return forbiddenWord[i] === " _ "
-          ? " _ "
-          : forbiddenWord[i];
-      }
-    });
-
-    if (
-      checkedWord
-        .join("")
-        .toUpperCase()
-        .indexOf(clickedAlphabet) > -1
-    )
-      clickedAlphabet = null;
-
-    setForbiddenWord(checkedWord);
-
-    if (clickedAlphabet !== null)
-      setMissedAlphabets((prev) => [
-        ...new Set([...prev, clickedAlphabet as string]),
-      ]);
-
-    if (!!word && checkedWord.join("") === word)
-      setTimeout(() => {
-        alert("정답입니다");
-      }, 500);
+    updateForbiddenWord((e.target as HTMLButtonElement).innerText.split('').map(() => ' _ '));
+    updateWord((e.target as HTMLButtonElement).innerText);
+    console.log('forbiddenWord', forbiddenWord);
   };
 
   return (
     <FlexDiv>
       <GraphicPanel>
-        <button onClick={generateWords}>
-          {words.length > 0 || word ? "restart" : "start"}
-        </button>
+        <button onClick={generateWords}>{words.length > 0 || word ? 'restart' : 'start'}</button>
 
         <DrawingDiv>
-          <svg
-            height="250"
-            width="200"
-            className="figure-container"
-          >
+          <svg height="250" width="200" className="figure-container">
             {/* Gallow */}
             {!!gallow && (
               <>
-                <line
-                  x1="60"
-                  y1="20"
-                  x2="140"
-                  y2="20"
-                  className="show"
-                />
+                <line x1="60" y1="20" x2="140" y2="20" className="show" />
 
-                <line
-                  x1="60"
-                  y1="20"
-                  x2="60"
-                  y2="230"
-                  className="show"
-                />
-                <line
-                  x1="20"
-                  y1="230"
-                  x2="100"
-                  y2="230"
-                  className="show"
-                />
+                <line x1="60" y1="20" x2="60" y2="230" className="show" />
+                <line x1="20" y1="230" x2="100" y2="230" className="show" />
               </>
             )}
             {/* Rod */}
-            {!!rod && (
-              <line
-                x1="140"
-                y1="20"
-                x2="140"
-                y2="50"
-                className="show"
-              />
-            )}
+            {!!rod && <line x1="140" y1="20" x2="140" y2="50" className="show" />}
 
             {/*  Head  */}
-            {!!head && (
-              <circle
-                cx="140"
-                cy="70"
-                r="20"
-                className="show"
-              />
-            )}
+            {!!head && <circle cx="140" cy="70" r="20" className="show" />}
             {/*  Body  */}
-            {!!body && (
-              <line
-                x1="140"
-                y1="90"
-                x2="140"
-                y2="150"
-                className="show"
-              />
-            )}
+            {!!body && <line x1="140" y1="90" x2="140" y2="150" className="show" />}
             {/*  Arms  */}
             {!!arms && (
               <>
-                <line
-                  x1="140"
-                  y1="120"
-                  x2="120"
-                  y2="100"
-                  className="show"
-                />
-                <line
-                  x1="140"
-                  y1="120"
-                  x2="160"
-                  y2="100"
-                  className="show"
-                />
+                <line x1="140" y1="120" x2="120" y2="100" className="show" />
+                <line x1="140" y1="120" x2="160" y2="100" className="show" />
               </>
             )}
             {/* hands */}
             {!!hands && (
               <>
-                <line
-                  x1="120"
-                  y1="100"
-                  x2="110"
-                  y2="110"
-                  className="show"
-                />
-                <line
-                  x1="160"
-                  y1="100"
-                  x2="170"
-                  y2="110"
-                  className="show"
-                />
+                <line x1="120" y1="100" x2="110" y2="110" className="show" />
+                <line x1="160" y1="100" x2="170" y2="110" className="show" />
               </>
             )}
 
             {/* Legs */}
             {!!legs && (
               <>
-                <line
-                  x1="140"
-                  y1="150"
-                  x2="120"
-                  y2="180"
-                  className="show"
-                />
-                <line
-                  x1="140"
-                  y1="150"
-                  x2="160"
-                  y2="180"
-                  className="show"
-                />
+                <line x1="140" y1="150" x2="120" y2="180" className="show" />
+                <line x1="140" y1="150" x2="160" y2="180" className="show" />
               </>
             )}
             {/* foot */}
             {!!foot && (
               <>
-                <line
-                  x1="120"
-                  y1="180"
-                  x2="110"
-                  y2="170"
-                  className="show"
-                />
-                <line
-                  x1="160"
-                  y1="180"
-                  x2="170"
-                  y2="170"
-                  className="show"
-                />
+                <line x1="120" y1="180" x2="110" y2="170" className="show" />
+                <line x1="160" y1="180" x2="170" y2="170" className="show" />
               </>
             )}
           </svg>
@@ -284,37 +147,16 @@ function App() {
                 <SelectDiv>
                   Pick one!
                   {words?.map((words, index) => (
-                    <button
-                      key={index}
-                      onClick={(e) => selectWord(e)}
-                    >
+                    <button key={index} onClick={(e) => selectWord(e)}>
                       {words}
                     </button>
                   ))}
                 </SelectDiv>
               )}
-          {word && (
-            <p className="missNotice">
-              miss : {missedAlphabets.length}
-            </p>
-          )}
+          {word && <p className="missNotice">miss : {missedAlphabets.length}</p>}
         </BelowDiv>
       </GraphicPanel>
-      <AlphabetPanel>
-        {word &&
-          upper.map((one, i) => (
-            <AlphabetButton
-              onClick={(e) => checkAlphabet(e)}
-              disabled={
-                missedAlphabets.filter((a) => a === one)
-                  .length > 0
-              }
-              key={i}
-            >
-              {one}
-            </AlphabetButton>
-          ))}
-      </AlphabetPanel>
+      <AlphabetComponents word={word} />
     </FlexDiv>
   );
 }
@@ -324,6 +166,7 @@ const FlexDiv = styled.div`
   color: black;
   box-sizing: border-box;
 `;
+
 const GraphicPanel = styled.section`
   width: 60%;
 `;
@@ -371,34 +214,13 @@ const BelowDiv = styled.div`
     margin-right: 10%;
   }
 `;
+
 const SelectDiv = styled.div`
   display: flex;
   flex-direction: column;
 
   button {
     margin: 16px 0;
-  }
-`;
-
-const AlphabetPanel = styled.section`
-  width: 40%;
-  display: grid;
-  grid-gap: 5px;
-  grid-template-columns: repeat(10, 1fr);
-`;
-
-const AlphabetButton = styled.button`
-  width: 2rem;
-  height: 2rem;
-  cursor: pointer;
-  font-size: 1.5rem;
-  margin: 0;
-  border-radius: 0;
-  text-transform: none;
-
-  &:disabled {
-    cursor: default;
-    color: red;
   }
 `;
 
