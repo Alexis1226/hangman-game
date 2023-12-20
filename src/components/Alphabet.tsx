@@ -3,7 +3,7 @@ import { SyntheticEvent } from 'react';
 import { upper } from '../assets/alphabet';
 import { useWordStore } from '../zustand/word';
 
-function AlphabetComponents({ word }: { word: string }) {
+function AlphabetSection({ word }: { word: string }) {
   const forbiddenWord = useWordStore((state) => state.forbiddenWord);
   const updateForbiddenWord = useWordStore((state) => state.updateForbiddenWord);
   const missedAlphabets = useWordStore((state) => state.missedAlphabets);
@@ -50,7 +50,7 @@ function AlphabetComponents({ word }: { word: string }) {
   );
 }
 
-export default AlphabetComponents;
+export default AlphabetSection;
 
 const AlphabetPanel = styled.section`
   width: 40%;
