@@ -1,7 +1,6 @@
 import styled from '@emotion/styled';
 import { SyntheticEvent, useEffect, useState } from 'react';
 import { useWordStore } from '../../zustand/word';
-import { generate } from 'random-words';
 import Gallow from './gallow';
 import Rod from './rod';
 import Head from './head';
@@ -10,6 +9,8 @@ import Arms from './arms';
 import Hands from './hands';
 import Legs from './legs';
 import Foot from './foot';
+import axios from 'axios';
+import { ApiRes, wordObj } from '../../types';
 
 const GraphicSection = ({ word }: { word: string }) => {
   const [words, setWords] = useState<string[]>([]); // 초기에 선택할 수 있는 단어들
@@ -43,20 +44,32 @@ const GraphicSection = ({ word }: { word: string }) => {
     setFoot(false);
   };
 
-  const generateWords = () => {
+  /**
+   * 단어 생성하는 API 호출
+   * @returns wordObj[]
+   */
+  const generateWords = async (): Promise<wordObj[]> => {
+    const { data } = await axios.get<ApiRes>(
+      'http://openapi.webservicetoday.com/api/open-api/random/word/eng',
+      {
+        params: { count: 3 },
+      }
+    );
+    return data.words;
+  };
+
+  /**
+   * API에서 불러온 단어들 저장
+   */
+  const getWords = async () => {
     resetGame();
-    const generated = generate({
-      exactly: 3,
-      minLength: 3,
-      maxLength: 10,
-    });
-    setWords(generated);
+    const words = (await generateWords()).map((item: wordObj) => item.vocabulary);
+    setWords(words);
   };
 
   const selectWord = (e: SyntheticEvent) => {
     updateForbiddenWord((e.target as HTMLButtonElement).innerText.split('').map(() => ' _ '));
     updateWord((e.target as HTMLButtonElement).innerText);
-    console.log('forbiddenWord', forbiddenWord);
   };
 
   useEffect(() => {
@@ -96,7 +109,7 @@ const GraphicSection = ({ word }: { word: string }) => {
 
   return (
     <GraphicPanel>
-      <button onClick={generateWords}>{words.length > 0 || word ? 'restart' : 'start'}</button>
+      <button onClick={getWords}>{words.length > 0 || word ? 'restart' : 'start'}</button>
       <DrawingDiv>
         <svg height="250" width="200" className="figure-container">
           {!!gallow && <Gallow />}

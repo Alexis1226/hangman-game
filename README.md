@@ -4,7 +4,7 @@
 
 # Feature
 
-- random-words라이브러리를 이용해 3개의 random 단어 제시
+- OPEN API를 이용해 3개의 random 단어 제시
 - 알파벳 선택 횟수를 8회까지 제한하고 단어에 존재하지 않은 알파벳은 붉은색 & 클릭 불가
 
 # Issue
