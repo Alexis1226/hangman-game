@@ -8,7 +8,7 @@ export interface WordState {
   resetWordStore: () => void;
 }
 
-export type wordObj = {
+export type WordObj = {
   vocabulary: string;
   mean: string;
   level: string;
@@ -17,5 +17,5 @@ export type wordObj = {
 };
 
 export type ApiRes = {
-  words: wordObj[];
+  words: WordObj[];
 };

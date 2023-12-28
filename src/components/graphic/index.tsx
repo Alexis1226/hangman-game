@@ -1,5 +1,5 @@
 import styled from '@emotion/styled';
-import { SyntheticEvent, useEffect, useState } from 'react';
+import { SyntheticEvent, useEffect, useReducer, useState } from 'react';
 import { useWordStore } from '../../zustand/word';
 import Gallow from './gallow';
 import Rod from './rod';
@@ -10,19 +10,55 @@ import Hands from './hands';
 import Legs from './legs';
 import Foot from './foot';
 import axios from 'axios';
-import { ApiRes, wordObj } from '../../types';
+import { ApiRes, WordObj } from '../../types';
+
+const initialState = {
+  gallow: false,
+  rod: false,
+  head: false,
+  body: false,
+  arms: false,
+  hands: false,
+  legs: false,
+  foot: false,
+};
+
+const reducer = (state: { [key: string]: boolean }, action: { numberOfMiss: number }) => {
+  switch (action.numberOfMiss) {
+    case 0:
+      return initialState;
+    case 1:
+      return { ...state, gallow: true };
+      break;
+    case 2:
+      return { ...state, rod: true };
+      break;
+    case 3:
+      return { ...state, head: true };
+      break;
+    case 4:
+      return { ...state, arms: true };
+      break;
+    case 5:
+      return { ...state, hands: true };
+      break;
+    case 6:
+      return { ...state, body: true };
+      break;
+    case 7:
+      return { ...state, legs: true };
+      break;
+    case 8:
+      return { ...state, foot: true };
+    default:
+      return state;
+  }
+};
 
 const GraphicSection = ({ word }: { word: string }) => {
   const [words, setWords] = useState<string[]>([]); // 초기에 선택할 수 있는 단어들
-
-  const [gallow, setGallow] = useState(false);
-  const [rod, setRod] = useState(false);
-  const [head, setHead] = useState(false);
-  const [body, setBody] = useState(false);
-  const [arms, setArms] = useState(false);
-  const [hands, setHands] = useState(false);
-  const [legs, setLegs] = useState(false);
-  const [foot, setFoot] = useState(false);
+  const [state, dispatch] = useReducer(reducer, initialState);
+  const { gallow, rod, head, body, arms, hands, legs, foot } = state;
 
   // Zustand
   const forbiddenWord = useWordStore((state) => state.forbiddenWord);
@@ -34,21 +70,14 @@ const GraphicSection = ({ word }: { word: string }) => {
   const resetGame = () => {
     resetWordStore();
     setWords([]);
-    setGallow(false);
-    setRod(false);
-    setHead(false);
-    setBody(false);
-    setArms(false);
-    setHands(false);
-    setLegs(false);
-    setFoot(false);
+    dispatch({ numberOfMiss: 0 });
   };
 
   /**
    * 단어 생성하는 API 호출
-   * @returns wordObj[]
+   * @returns WordObj[]
    */
-  const generateWords = async (): Promise<wordObj[]> => {
+  const generateWords = async (): Promise<WordObj[]> => {
     const { data } = await axios.get<ApiRes>(
       'http://openapi.webservicetoday.com/api/open-api/random/word/eng',
       {
@@ -63,7 +92,7 @@ const GraphicSection = ({ word }: { word: string }) => {
    */
   const getWords = async () => {
     resetGame();
-    const words = (await generateWords()).map((item: wordObj) => item.vocabulary);
+    const words = (await generateWords()).map((item: WordObj) => item.vocabulary);
     setWords(words);
   };
 
@@ -73,38 +102,12 @@ const GraphicSection = ({ word }: { word: string }) => {
   };
 
   useEffect(() => {
-    switch (missedAlphabets.length) {
-      case 1:
-        setGallow(true);
-        break;
-      case 2:
-        setRod(true);
-        break;
-      case 3:
-        setHead(true);
-        break;
-      case 4:
-        setArms(true);
-        break;
-      case 5:
-        setHands(true);
-        break;
-      case 6:
-        setBody(true);
-        break;
-      case 7:
-        setLegs(true);
-        break;
-      case 8:
-        setFoot(true);
-        setTimeout(() => {
-          alert('실패!');
-          window.location.reload();
-        }, 500);
-
-        break;
-      default:
-    }
+    dispatch({ numberOfMiss: missedAlphabets.length });
+    if (missedAlphabets.length === 8)
+      setTimeout(() => {
+        alert('실패!');
+        window.location.reload();
+      }, 500);
   }, [missedAlphabets]);
 
   return (
