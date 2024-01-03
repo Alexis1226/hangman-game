@@ -11,6 +11,7 @@ import Legs from './legs';
 import Foot from './foot';
 import axios from 'axios';
 import { ApiRes, WordObj } from '../../types';
+import gsap from 'gsap';
 
 const initialState = {
   gallow: false,
@@ -110,18 +111,23 @@ const GraphicSection = ({
 
   useEffect(() => {
     dispatch({ numberOfMiss: missedAlphabets.length });
-    if (missedAlphabets.length === 8)
+    if (missedAlphabets.length === 8) {
+      setTimeout(() => {
+        gsap.to('.rod', { attr: { y2: '+=70' }, duration: 1.5, ease: 'bounce.out' });
+        gsap.to('.man', { y: 70, duration: 1.5, ease: 'bounce.out' });
+      }, 100);
       setTimeout(() => {
         alert('실패!');
         window.location.reload();
-      }, 500);
+      }, 1800);
+    }
   }, [missedAlphabets]);
 
   return (
     <GraphicPanel>
       <StartButton onClick={getWords}>{words.length > 0 || word ? 'restart' : 'start'}</StartButton>
       <DrawingDiv>
-        <svg height="250" width="200" className="figure-container">
+        <svg height="260" width="200" className="figure-container">
           {!!gallow && <Gallow />}
           {!!rod && <Rod />}
           {!!head && <Head />}
