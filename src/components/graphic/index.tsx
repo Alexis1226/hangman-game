@@ -1,5 +1,5 @@
 import styled from '@emotion/styled';
-import { SyntheticEvent, useEffect, useReducer, useState } from 'react';
+import { useEffect, useReducer } from 'react';
 import { useWordStore } from '../../zustand/word';
 import Gallow from './gallow';
 import Rod from './rod';
@@ -55,18 +55,26 @@ const reducer = (state: { [key: string]: boolean }, action: { numberOfMiss: numb
   }
 };
 
-const GraphicSection = ({ word }: { word: string }) => {
-  const [words, setWords] = useState<string[]>([]); // 초기에 선택할 수 있는 단어들
+const GraphicSection = ({
+  word,
+  words,
+  setWords,
+}: {
+  word: string;
+  words: string[];
+  setWords: React.Dispatch<React.SetStateAction<string[]>>;
+}) => {
   const [state, dispatch] = useReducer(reducer, initialState);
   const { gallow, rod, head, body, arms, hands, legs, foot } = state;
 
   // Zustand
   const forbiddenWord = useWordStore((state) => state.forbiddenWord);
   const missedAlphabets = useWordStore((state) => state.missedAlphabets);
-  const updateWord = useWordStore((state) => state.updateWord);
-  const updateForbiddenWord = useWordStore((state) => state.updateForbiddenWord);
   const resetWordStore = useWordStore((state) => state.resetWordStore);
 
+  /**
+   * game 초기화하는 함수
+   */
   const resetGame = () => {
     resetWordStore();
     setWords([]);
@@ -96,10 +104,9 @@ const GraphicSection = ({ word }: { word: string }) => {
     setWords(words);
   };
 
-  const selectWord = (e: SyntheticEvent) => {
-    updateForbiddenWord((e.target as HTMLButtonElement).innerText.split('').map(() => ' _ '));
-    updateWord((e.target as HTMLButtonElement).innerText);
-  };
+  useEffect(() => {
+    getWords();
+  }, []);
 
   useEffect(() => {
     dispatch({ numberOfMiss: missedAlphabets.length });
@@ -112,7 +119,7 @@ const GraphicSection = ({ word }: { word: string }) => {
 
   return (
     <GraphicPanel>
-      <button onClick={getWords}>{words.length > 0 || word ? 'restart' : 'start'}</button>
+      <StartButton onClick={getWords}>{words.length > 0 || word ? 'restart' : 'start'}</StartButton>
       <DrawingDiv>
         <svg height="250" width="200" className="figure-container">
           {!!gallow && <Gallow />}
@@ -126,18 +133,7 @@ const GraphicSection = ({ word }: { word: string }) => {
         </svg>
       </DrawingDiv>
       <BelowDiv>
-        {word
-          ? forbiddenWord
-          : words.length > 0 && (
-              <SelectDiv>
-                Pick one!
-                {words?.map((words, index) => (
-                  <button key={index} onClick={(e) => selectWord(e)}>
-                    {words}
-                  </button>
-                ))}
-              </SelectDiv>
-            )}
+        {forbiddenWord && forbiddenWord}
         {word && <p className="missNotice">miss : {missedAlphabets.length}</p>}
       </BelowDiv>
     </GraphicPanel>
@@ -147,7 +143,13 @@ const GraphicSection = ({ word }: { word: string }) => {
 export default GraphicSection;
 
 const GraphicPanel = styled.section`
-  width: 60%;
+  width: 100%;
+  height: 60%;
+
+  @media screen and (orientation: landscape) {
+    width: 60%;
+    height: 100%;
+  }
 `;
 
 const DrawingDiv = styled.div`
@@ -155,6 +157,7 @@ const DrawingDiv = styled.div`
   margin: auto 0;
   height: fit-content;
   width: 100%;
+  height: 60%;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -182,6 +185,10 @@ const DrawingDiv = styled.div`
   }
 `;
 
+const StartButton = styled.button`
+  font-size: 24px;
+`;
+
 const BelowDiv = styled.div`
   display: flex;
   font-size: 2rem;
@@ -191,14 +198,5 @@ const BelowDiv = styled.div`
   .missNotice {
     margin-left: 20%;
     margin-right: 10%;
-  }
-`;
-
-const SelectDiv = styled.div`
-  display: flex;
-  flex-direction: column;
-
-  button {
-    margin: 16px 0;
   }
 `;

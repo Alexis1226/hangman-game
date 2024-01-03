@@ -53,15 +53,23 @@ function AlphabetSection({ word }: { word: string }) {
 export default AlphabetSection;
 
 const AlphabetPanel = styled.section`
-  width: 40%;
+  width: 100%;
+  height: 40%;
   display: grid;
-  grid-gap: 5px;
-  grid-template-columns: repeat(10, 1fr);
+  grid-gap: 8px;
+  grid-template-columns: repeat(auto-fill, minmax(20px, 40px));
+  place-content: center;
+  padding: 24px;
+
+  @media screen and (orientation: landscape) {
+    width: 30%;
+    height: 100%;
+  }
 `;
 
 const AlphabetButton = styled.button`
-  width: 2rem;
-  height: 2rem;
+  width: 100%;
+  aspect-ratio: 1;
   cursor: pointer;
   font-size: 1.5rem;
   margin: 0;
