@@ -1,11 +1,13 @@
 # Tech Stack
 
-- React + TypeScript + Vite + Emotion + Zustand
+- React + TypeScript + Vite + Emotion + Zustand + GSAP
 
 # Feature
 
 - OPEN API를 이용해 3개의 random 단어 제시
 - 알파벳 선택 횟수를 8회까지 제한하고 단어에 존재하지 않은 알파벳은 붉은색 & 클릭 불가
+- GSAP를 이용해 교수형 처해지는 사람을 표현
+- 반응형 적용
 
 # Issue
 
@@ -22,5 +24,4 @@
 
 # To-be
 
-- UI를 사용자 친화적으로 변경 & 반응형 적용
 - Player 수를 정할 수 있는 선택지를 제공해서 여러명이 플레이할 수 있도록 제공
